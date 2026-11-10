@@ -154,6 +154,9 @@ pub extern "C" fn shorten(url: *const c_char) -> *mut c_char {
         return to_c_string(code);
     }
 
+    // TODO: propagate write errors (Store::set -> Result) so that writing to
+    //       a read-only replica / unavailable Redis fails loudly instead of
+    //       returning a code that was never persisted.
     for _ in 0..MAX_RETRIES {
         let code = gen_code();
         let code_key = format!("code:{}", code);
