@@ -15,7 +15,12 @@ import (
 func main() {
 	C.url_shortener_seed(42)
 
-	if C.url_shortener_init_memory() != 0 {
+	/*if C.url_shortener_init_memory() != 0 {
+		log.Fatalf("Init failed")
+	}*/
+	redisUrl := C.CString("redis://127.0.0.1/")
+	defer C.free(unsafe.Pointer(redisUrl))
+	if C.url_shortener_init_redis(redisUrl) != 0 {
 		log.Fatalf("Init failed")
 	}
 	defer C.url_shortener_destroy()
