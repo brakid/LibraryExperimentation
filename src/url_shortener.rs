@@ -28,7 +28,7 @@ impl Store for RedisStore {
         self.conn.get(key).ok()
     }
     fn set(&mut self, key: &str, value: &str) {
-        let _: Result<(), _> = self.conn.set(key, value);
+        let _: Result<(), _> = self.conn.set_ex(key, value, TTL_SECS);
     }
 }
 
@@ -62,6 +62,7 @@ fn store_mutex() -> &'static Mutex<Option<Box<dyn Store + Send>>> {
 const ALPHANUM: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 const CODE_LEN: usize = 10;
 const MAX_RETRIES: usize = 10;
+const TTL_SECS: u64 = 30 * 24 * 60 * 60; // 30 days
 
 static RNG: OnceLock<Mutex<Option<StdRng>>> = OnceLock::new();
 

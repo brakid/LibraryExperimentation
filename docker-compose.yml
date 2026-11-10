@@ -1,14 +1,24 @@
 version: "3.9"
 
 services:
-  redis:
+  redis-primary:
     image: redis:7-alpine
-    container_name: url_shortener_redis
+    container_name: url_shortener_redis_primary
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --appendfsync everysec
+    restart: unless-stopped
+
+  redis-replica:
+    image: redis:7-alpine
+    container_name: url_shortener_redis_replica
+    ports:
+      - "6380:6379"
+    depends_on:
+      - redis-primary
+    command: redis-server --replicaof redis-primary 6379 --replica-read-only yes
     restart: unless-stopped
 
 volumes:

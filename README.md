@@ -60,6 +60,22 @@ func shortenURL(u string) string {
 }
 ```
 
+## Redis persistence & replicas
+
+Redis is not durable by default on every write. This project's `docker-compose.yml`
+enables AOF with `appendfsync everysec` (fsync once per second, up to ~1s loss
+on crash). For stronger durability use `--appendfsync always` (slower); for
+weaker, `--appendfsync no`.
+
+Data is stored in a named Docker volume (`redis_data`) so it survives container
+restarts.
+
+A read-only replica is included (`redis-replica`, port 6380). Redis replicas are
+read-only by default (`replica-read-only yes`), so they serve reads but reject
+writes. The library connects to a single instance via `url_shortener_init_redis`;
+point it at the primary for writes. Replicas are useful for scaling reads or
+failover, but the library does not (yet) route reads to replicas automatically.
+
 ## Multithreading
 
 The library is **safe to use from multiple threads**:
@@ -79,6 +95,7 @@ processes.
 ## Notes
 
 - `shorten` is idempotent: shortening the same URL twice returns the same code.
+- Records expire after 30 days in Redis (key TTL). The in-memory store keeps entries indefinitely.
 - Codes are 10 alphanumeric characters, generated randomly with collision
   retries (up to 10).
 - Strings returned by `shorten`/`resolve` are heap-allocated by Rust and must

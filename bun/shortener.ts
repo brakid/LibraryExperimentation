@@ -1,7 +1,7 @@
 import { dlopen, CString, FFIType, suffix, ptr } from 'bun:ffi';
 import { exit } from 'process';
 
-const { symbols: { url_shortener_seed, url_shortener_destroy, url_shortener_init_redis, resolve, free_string }} = dlopen(`../target/release/liblibrary.${suffix}`, {
+const { symbols: { url_shortener_seed, url_shortener_destroy, url_shortener_init_redis, resolve, free_string } } = dlopen(`../target/release/liblibrary.${suffix}`, {
     url_shortener_seed: {
         args: [FFIType.u64],
         returns: FFIType.void
